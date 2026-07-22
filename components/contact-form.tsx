@@ -47,6 +47,24 @@ const INITIAL_STATE: FormState = {
   remarks: "",
 }
 
+// Enquiries are delivered here via WhatsApp (India country code 91)
+const WHATSAPP_DESTINATION = "919249049553"
+
+function buildWhatsAppUrl(form: FormState) {
+  const enquiryLabel =
+    ENQUIRY_OPTIONS.find((o) => o.value === form.enquiry)?.label ?? form.enquiry
+  const lines = [
+    "New enquiry from Project Remember website",
+    "",
+    `Name: ${form.name}`,
+    `Phone: ${form.phone}`,
+    `WhatsApp: ${form.whatsapp || "Not provided"}`,
+    `Enquiry: ${enquiryLabel}`,
+    `Remarks: ${form.remarks || "None"}`,
+  ]
+  return `https://wa.me/${WHATSAPP_DESTINATION}?text=${encodeURIComponent(lines.join("\n"))}`
+}
+
 export function ContactForm() {
   const [form, setForm] = useState<FormState>(INITIAL_STATE)
   const [submitted, setSubmitted] = useState(false)
@@ -56,7 +74,7 @@ export function ContactForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("[v0] Contact form submitted:", form)
+    window.open(buildWhatsAppUrl(form), "_blank", "noopener,noreferrer")
     setSubmitted(true)
   }
 
@@ -71,18 +89,29 @@ export function ContactForm() {
             Thank you, {form.name || "friend"}!
           </h2>
           <p className="mx-auto max-w-md leading-relaxed text-muted-foreground text-pretty">
-            {"We've received your enquiry and our team will reach out to you shortly. In the meantime, explore more about our work."}
+            {"Your enquiry has opened in WhatsApp — just hit send to reach our team directly. In the meantime, explore more about our work."}
           </p>
         </div>
-        <a
-          href="https://projectremember.netlify.app/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-        >
-          Visit Project Remember
-          <ArrowUpRight className="size-4" aria-hidden="true" />
-        </a>
+        <div className="flex flex-col items-center gap-3 sm:flex-row">
+          <a
+            href={buildWhatsAppUrl(form)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            <MessageCircle className="size-4" aria-hidden="true" />
+            Send on WhatsApp
+          </a>
+          <a
+            href="https://projectremember.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+          >
+            Visit Project Remember
+            <ArrowUpRight className="size-4" aria-hidden="true" />
+          </a>
+        </div>
         <button
           type="button"
           onClick={() => {
